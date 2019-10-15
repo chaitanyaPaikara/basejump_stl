@@ -13,27 +13,29 @@
         else if (w_v_i)                     \
           v_r[w_addr_i] <= ~v_r[w_addr_i];  \
                                             \
-      wire [1:0] v_li    = {r_v_i | w_v_i, r_v_i | w_v_i};                                             \
-      wire [1:0] w_li    = {w_v_i & ~v_r[w_addr_i], w_v_i & v_r[w_addr_i]};                            \
-      wire [1:0] addr_li = {v_r[r_addr_i] ? r_addr_i : w_addr_i, ~v_r[raddr_i] ? r_addr_i : w_addr_i}; \
-      assign r_data_o    = v_r[r_addr_i] ? data_lo[1] : data_lo[0];                                    \
+      wire [1:0] v_li    = {r_v_i | w_v_i, r_v_i | w_v_i};                                              \
+      wire [1:0] w_li    = {w_v_i & ~v_r[w_addr_i], w_v_i & v_r[w_addr_i]};                             \
+      wire [1:0][addr_width_lp-1:0]                                                                     \
+                 addr_li = {v_r[r_addr_i] ? r_addr_i : w_addr_i, ~v_r[r_addr_i] ? r_addr_i : w_addr_i}; \
+      logic [1:0][width_p-1:0] data_lo;                                                                 \
+      assign r_data_o    = v_r[r_addr_i] ? data_lo[1] : data_lo[0];                                     \
                                             \
-       free45_1rw_d``words``_w``bits` mem0  \
+       free45_1rw_d``words``_w``bits`` mem0 \
          (.clk       ( clk_i      )         \
          ,.ce_in     ( v_li[0]    )         \
          ,.we_in     ( w_li[0]    )         \
          ,.addr_in   ( addr_li[0] )         \
-         ,.wd_in     ( data_i     )         \
+         ,.wd_in     ( w_data_i   )         \
          ,.w_mask_in ( '1         )         \
          ,.rd_out    ( data_lo[1] )         \
          );                                 \
                                             \
-       free45_1rw_d``words``_w``bits` mem1  \
+       free45_1rw_d``words``_w``bits`` mem1 \
          (.clk       ( clk_i      )         \
          ,.ce_in     ( v_li[1]    )         \
          ,.we_in     ( w_li[1]    )         \
          ,.addr_in   ( addr_li[1] )         \
-         ,.wd_in     ( data_i     )         \
+         ,.wd_in     ( w_data_i   )         \
          ,.w_mask_in ( '1         )         \
          ,.rd_out    ( data_lo[1] )         \
          );                                 \
@@ -65,7 +67,6 @@ module bsg_mem_1r1w_sync #(parameter width_p=-1
           (.*);
 
       end // block: notmacro
-  end // block: z
 
 endmodule
 
